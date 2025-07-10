@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'addbookpage.dart';
 
 class Book {
@@ -13,6 +15,15 @@ class Book {
     required this.author,
     required this.description,
   });
+
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book(
+      id: json['_id'] ?? json['id'],
+      title: json['title'],
+      author: json['author'],
+      description: json['description'],
+    );
+  }
 }
 
 class HomePage extends StatefulWidget {
@@ -23,26 +34,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
-  List<Book> books = [
-    Book(
-      id: '1',
-      title: 'The Great Gatsby',
-      author: 'F. Scott Fitzgerald',
-      description: 'A story of the fabulously wealthy Jay Gatsby and his love for the beautiful Daisy Buchanan.',
-    ),
-    Book(
-      id: '2',
-      title: 'To Kill a Mockingbird',
-      author: 'Harper Lee',
-      description: 'The story of young Scout Finch and her father Atticus in a racially divided Alabama town.',
-    ),
-    Book(
-      id: '3',
-      title: '1984',
-      author: 'George Orwell',
-      description: 'A dystopian novel about totalitarianism and surveillance society.',
-    ),
-  ];
+  List<Book> books = [];
+  bool isLoading = true;
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -73,6 +66,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     ));
     
     _animationController.forward();
+    fetchBooks();
   }
 
   @override
@@ -81,16 +75,90 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  void addBook(Book book) {
-    setState(() {
-      books.add(book);
-    });
+  Future<void> fetchBooks() async {
+    try {
+      final response = await http.get(Uri.parse('http://192.168.195.238:3000/api/books'));
+      if (response.statusCode == 200) {
+        final List<dynamic> booksJson = json.decode(response.body);
+        setState(() {
+          books = booksJson.map((json) => Book.fromJson(json)).toList();
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error loading books: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
-  void deleteBook(String id) {
-    setState(() {
-      books.removeWhere((book) => book.id == id);
-    });
+  Future<void> addBook(Book book) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.195.238:3000/api/books'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'title': book.title,
+          'author': book.author,
+          'description': book.description,
+        }),
+      );
+
+      if (response.statusCode == 201) {
+        final newBook = Book.fromJson(json.decode(response.body));
+        setState(() {
+          books.add(newBook);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Book added successfully!'),
+            backgroundColor: const Color(0xFF667EEA),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error adding book: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> deleteBook(String id) async {
+    try {
+      final response = await http.delete(Uri.parse('http://192.168.195.238:3000/api/books/$id'));
+      if (response.statusCode == 200) {
+        setState(() {
+          books.removeWhere((book) => book.id == id);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Book deleted successfully'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error deleting book: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
@@ -210,9 +278,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ],
                       ),
-                      child: books.isEmpty
-                          ? _buildEmptyState()
-                          : _buildBookList(),
+                      child: isLoading
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Color(0xFF667EEA),
+                              ),
+                            )
+                          : books.isEmpty
+                              ? _buildEmptyState()
+                              : _buildBookList(),
                     ),
                   ),
                 ),
@@ -250,7 +324,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             );
             if (result != null) {
-              addBook(result);
+              await addBook(result);
             }
           },
           backgroundColor: const Color(0xFF667EEA),
