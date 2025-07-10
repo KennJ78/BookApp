@@ -15,6 +15,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _authorController = TextEditingController();
+  final _publishYearController = TextEditingController();
   final _descriptionController = TextEditingController();
 
   late AnimationController _animationController;
@@ -53,12 +54,26 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
     _animationController.dispose();
     _titleController.dispose();
     _authorController.dispose();
+    _publishYearController.dispose();
     _descriptionController.dispose();
     super.dispose();
   }
 
   Future<void> _addBook() async {
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Additional validation for publish year
+    final publishYear = int.tryParse(_publishYearController.text);
+    if (publishYear == null || publishYear < 1000 || publishYear > DateTime.now().year + 1) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Please enter a valid publish year'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
       return;
     }
 
@@ -69,6 +84,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
         body: json.encode({
           'title': _titleController.text,
           'author': _authorController.text,
+          'publishYear': publishYear,
           'description': _descriptionController.text,
         }),
       );
@@ -263,21 +279,42 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                               ),
                               const SizedBox(height: 24),
                               
-                              // Author Field
-                              _buildTextField(
-                                controller: _authorController,
-                                label: 'Author',
-                                icon: Icons.person,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter an author';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 24),
-                              
-                              // Description Field
+                                                         // Author Field
+                           _buildTextField(
+                             controller: _authorController,
+                             label: 'Author',
+                             icon: Icons.person,
+                             validator: (value) {
+                               if (value == null || value.isEmpty) {
+                                 return 'Please enter an author';
+                               }
+                               return null;
+                             },
+                           ),
+                           const SizedBox(height: 24),
+                           
+                           // Publish Year Field
+                           _buildTextField(
+                             controller: _publishYearController,
+                             label: 'Publish Year',
+                             icon: Icons.calendar_today,
+                             validator: (value) {
+                               if (value == null || value.isEmpty) {
+                                 return 'Please enter a publish year';
+                               }
+                               final year = int.tryParse(value);
+                               if (year == null) {
+                                 return 'Please enter a valid year';
+                               }
+                               if (year < 1000 || year > DateTime.now().year + 1) {
+                                 return 'Please enter a valid year between 1000 and ${DateTime.now().year + 1}';
+                               }
+                               return null;
+                             },
+                           ),
+                           const SizedBox(height: 24),
+                           
+                           // Description Field
                               _buildTextField(
                                 controller: _descriptionController,
                                 label: 'Description',

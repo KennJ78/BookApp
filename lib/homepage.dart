@@ -7,12 +7,14 @@ class Book {
   final String id;
   final String title;
   final String author;
+  final int publishYear;
   final String description;
 
   Book({
     required this.id,
     required this.title,
     required this.author,
+    required this.publishYear,
     required this.description,
   });
 
@@ -21,6 +23,7 @@ class Book {
       id: json['_id'] ?? json['id'],
       title: json['title'],
       author: json['author'],
+      publishYear: json['publishYear'] ?? 0,
       description: json['description'],
     );
   }
@@ -107,6 +110,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         body: json.encode({
           'title': book.title,
           'author': book.author,
+          'publishYear': book.publishYear,
           'description': book.description,
         }),
       );
@@ -379,7 +383,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           ),
           const SizedBox(height: 12),
           const Text(
-            'Start building your collection\nby adding your first book!',
+            'Start building your collection\nby adding your first book with title, author, publish year, and description!',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
@@ -473,27 +477,57 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           children: [
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(15),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
-                    ),
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF667EEA).withOpacity(0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.auto_stories,
-                    color: Colors.white,
-                    size: 28,
-                  ),
-                ),
+                                 Stack(
+                   children: [
+                     Container(
+                       padding: const EdgeInsets.all(15),
+                       decoration: BoxDecoration(
+                         gradient: const LinearGradient(
+                           colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                         ),
+                         borderRadius: BorderRadius.circular(15),
+                         boxShadow: [
+                           BoxShadow(
+                             color: const Color(0xFF667EEA).withOpacity(0.3),
+                             blurRadius: 10,
+                             offset: const Offset(0, 5),
+                           ),
+                         ],
+                       ),
+                       child: const Icon(
+                         Icons.auto_stories,
+                         color: Colors.white,
+                         size: 28,
+                       ),
+                     ),
+                     Positioned(
+                       top: -5,
+                       right: -5,
+                       child: Container(
+                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                         decoration: BoxDecoration(
+                           color: Colors.white,
+                           borderRadius: BorderRadius.circular(10),
+                           boxShadow: [
+                             BoxShadow(
+                               color: Colors.black.withOpacity(0.1),
+                               blurRadius: 4,
+                               offset: const Offset(0, 2),
+                             ),
+                           ],
+                         ),
+                         child: Text(
+                           '${book.publishYear}',
+                           style: const TextStyle(
+                             fontSize: 10,
+                             fontWeight: FontWeight.bold,
+                             color: Color(0xFF667EEA),
+                           ),
+                         ),
+                       ),
+                     ),
+                   ],
+                 ),
                 const SizedBox(width: 20),
                 Expanded(
                   child: Column(
@@ -508,14 +542,33 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      Text(
-                        'by ${book.author}',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          color: Color(0xFF667EEA),
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                                             Text(
+                         'by ${book.author}',
+                         style: const TextStyle(
+                           fontSize: 15,
+                           color: Color(0xFF667EEA),
+                           fontWeight: FontWeight.w600,
+                         ),
+                       ),
+                       const SizedBox(height: 4),
+                       Container(
+                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                         decoration: BoxDecoration(
+                           color: const Color(0xFF667EEA).withOpacity(0.1),
+                           borderRadius: BorderRadius.circular(8),
+                           border: Border.all(
+                             color: const Color(0xFF667EEA).withOpacity(0.3),
+                           ),
+                         ),
+                         child: Text(
+                           'Published: ${book.publishYear}',
+                           style: const TextStyle(
+                             fontSize: 12,
+                             color: Color(0xFF667EEA),
+                             fontWeight: FontWeight.w500,
+                           ),
+                         ),
+                       ),
                     ],
                   ),
                 ),

@@ -118,6 +118,7 @@ The backend will run on `http://localhost:3000`
   _id: ObjectId,
   title: String (required, max 100 chars),
   author: String (required, max 50 chars),
+  publishYear: Number (required, min 1000, max current year + 1),
   description: String (required, max 500 chars),
   createdAt: Date,
   updatedAt: Date
