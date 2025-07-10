@@ -36,18 +36,19 @@ router.get('/:id', async (req, res) => {
 // POST a new book
 router.post('/', async (req, res) => {
   try {
-    const { title, author, description } = req.body;
+    const { title, author, publishYear, description } = req.body;
     
     // Validation
-    if (!title || !author || !description) {
+    if (!title || !author || !publishYear || !description) {
       return res.status(400).json({ 
-        message: 'Title, author, and description are required' 
+        message: 'Title, author, publish year, and description are required' 
       });
     }
 
     const newBook = new Book({
       title,
       author,
+      publishYear: parseInt(publishYear),
       description
     });
 
@@ -71,12 +72,12 @@ router.post('/', async (req, res) => {
 // PUT update a book
 router.put('/:id', async (req, res) => {
   try {
-    const { title, author, description } = req.body;
+    const { title, author, publishYear, description } = req.body;
     
     // Validation
-    if (!title || !author || !description) {
+    if (!title || !author || !publishYear || !description) {
       return res.status(400).json({ 
-        message: 'Title, author, and description are required' 
+        message: 'Title, author, publish year, and description are required' 
       });
     }
 
@@ -85,6 +86,7 @@ router.put('/:id', async (req, res) => {
       {
         title,
         author,
+        publishYear: parseInt(publishYear),
         description,
         updatedAt: Date.now()
       },
@@ -141,6 +143,7 @@ router.get('/search/:query', async (req, res) => {
       $or: [
         { title: { $regex: query, $options: 'i' } },
         { author: { $regex: query, $options: 'i' } },
+        { publishYear: { $regex: query, $options: 'i' } },
         { description: { $regex: query, $options: 'i' } }
       ]
     }).sort({ createdAt: -1 });
