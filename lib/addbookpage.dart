@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'homepage.dart';
 
 class AddBookPage extends StatefulWidget {
@@ -55,30 +57,54 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
     super.dispose();
   }
 
-  void _addBook() {
+  Future<void> _addBook() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    final newBook = Book(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: _titleController.text,
-      author: _authorController.text,
-      description: _descriptionController.text,
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.195.238:3000/api/books'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'title': _titleController.text,
+          'author': _authorController.text,
+          'description': _descriptionController.text,
+        }),
+      );
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Book added successfully!'),
-        backgroundColor: const Color(0xFF667EEA),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+      if (response.statusCode == 201) {
+        final newBook = Book.fromJson(json.decode(response.body));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Book added successfully!'),
+            backgroundColor: const Color(0xFF667EEA),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+        Navigator.pop(context, newBook);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${response.body}'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error adding book: $e'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
         ),
-        margin: const EdgeInsets.all(16),
-      ),
-    );
-    Navigator.pop(context, newBook);
+      );
+    }
   }
 
   @override
