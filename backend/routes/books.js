@@ -38,6 +38,8 @@ router.post('/', async (req, res) => {
   try {
     const { title, author, publishYear, description } = req.body;
     
+    console.log('Received book creation request:', { title, author, publishYear, description });
+    
     // Validation
     if (!title || !author || !publishYear || !description) {
       return res.status(400).json({ 
@@ -45,14 +47,33 @@ router.post('/', async (req, res) => {
       });
     }
 
-    const newBook = new Book({
-      title,
-      author,
-      publishYear: parseInt(publishYear),
-      description
+    // Check for existing book with same title and author
+    const existingBook = await Book.findOne({
+      title: title.trim(),
+      author: author.trim(),
+      publishYear: parseInt(publishYear)
     });
 
+    if (existingBook) {
+      console.log('Duplicate book found:', existingBook);
+      return res.status(409).json({ 
+        message: 'A book with this title, author, and publish year already exists',
+        existingBook
+      });
+    }
+
+    const newBook = new Book({
+      title: title.trim(),
+      author: author.trim(),
+      publishYear: parseInt(publishYear),
+      description: description.trim()
+    });
+
+    console.log('Creating new book:', newBook);
+
     const savedBook = await newBook.save();
+    console.log('Book saved successfully:', savedBook._id);
+    
     res.status(201).json(savedBook);
   } catch (error) {
     console.error('Error creating book:', error);

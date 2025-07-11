@@ -83,8 +83,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       final response = await http.get(Uri.parse('http://192.168.195.238:3001/api/books'));
       if (response.statusCode == 200) {
         final List<dynamic> booksJson = json.decode(response.body);
+        final List<Book> fetchedBooks = booksJson.map((json) => Book.fromJson(json)).toList();
+        
+        // Remove duplicates based on book ID
+        final Map<String, Book> uniqueBooks = {};
+        for (Book book in fetchedBooks) {
+          uniqueBooks[book.id] = book;
+        }
+        
         setState(() {
-          books = booksJson.map((json) => Book.fromJson(json)).toList();
+          books = uniqueBooks.values.toList();
           isLoading = false;
         });
       }
@@ -108,7 +116,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> addBook(Book book) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.195.238:3000/api/books'),
+        Uri.parse('http://192.168.195.238:3001/api/books'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'title': book.title,
@@ -121,12 +129,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       if (response.statusCode == 201) {
         final newBook = Book.fromJson(json.decode(response.body));
         setState(() {
-          books.add(newBook);
+          // Check if book already exists before adding
+          bool bookExists = books.any((existingBook) => existingBook.id == newBook.id);
+          if (!bookExists) {
+            books.add(newBook);
+          }
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Book added successfully!'),
             backgroundColor: const Color(0xFF10B981),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        );
+      } else if (response.statusCode == 409) {
+        // Handle duplicate book
+        final responseData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(responseData['message'] ?? 'Book already exists'),
+            backgroundColor: const Color(0xFFFFA500),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        );
+      } else {
+        final responseData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${responseData['message'] ?? response.body}'),
+            backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
@@ -150,7 +187,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> deleteBook(String id) async {
     try {
-      final response = await http.delete(Uri.parse('http://192.168.195.238:3000/api/books/$id'));
+      final response = await http.delete(Uri.parse('http://192.168.195.238:3001/api/books/$id'));
       if (response.statusCode == 200) {
         setState(() {
           books.removeWhere((book) => book.id == id);
@@ -355,7 +392,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               ),
             );
             if (result != null) {
-              await addBook(result);
+              // Add the book to the list immediately
+              setState(() {
+                bool bookExists = books.any((existingBook) => existingBook.id == result.id);
+                if (!bookExists) {
+                  books.add(result);
+                }
+              });
             }
           },
           backgroundColor: const Color(0xFF6366F1),
@@ -724,7 +767,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             children: [
               // Handle
               Center(
-                  child: Container(
+                child: Container(
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
@@ -776,19 +819,19 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ),
                       ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
               
               const SizedBox(height: 24),
               
               // Year Badge
-            Container(
+              Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
+                decoration: BoxDecoration(
                   color: const Color(0xFF6366F1).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   'Published ${book.publishYear}',
@@ -814,24 +857,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               const SizedBox(height: 12),
               Expanded(
                 child: Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(
+                    minHeight: 200,
+                    maxHeight: 400,
+                  ),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: const Color(0xFF2A2A4F),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: SingleChildScrollView(
-              child: Text(
-                book.description,
-                style: const TextStyle(
+                    child: Text(
+                      book.description,
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Color(0xFFB8B8D1),
-                  height: 1.6,
+                        height: 1.6,
                       ),
                     ),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
           ),
         ),
       ),

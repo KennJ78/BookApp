@@ -21,6 +21,8 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
+  
+  bool _isSubmitting = false; // Add loading state
 
   @override
   void initState() {
@@ -60,6 +62,11 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
   }
 
   Future<void> _addBook() async {
+    // Prevent duplicate submissions
+    if (_isSubmitting) {
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -80,15 +87,19 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
       return;
     }
 
+    setState(() {
+      _isSubmitting = true;
+    });
+
     try {
       final response = await http.post(
         Uri.parse('http://192.168.195.238:3001/api/books'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
-          'title': _titleController.text,
-          'author': _authorController.text,
+          'title': _titleController.text.trim(),
+          'author': _authorController.text.trim(),
           'publishYear': publishYear,
-          'description': _descriptionController.text,
+          'description': _descriptionController.text.trim(),
         }),
       );
 
@@ -105,10 +116,24 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
           ),
         );
         Navigator.pop(context, newBook);
-      } else {
+      } else if (response.statusCode == 409) {
+        // Handle duplicate book
+        final responseData = json.decode(response.body);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${response.body}'),
+            content: Text(responseData['message'] ?? 'Book already exists'),
+            backgroundColor: const Color(0xFFFFA500),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        );
+      } else {
+        final responseData = json.decode(response.body);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${responseData['message'] ?? response.body}'),
             backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -128,6 +153,10 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
           ),
         ),
       );
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
     }
   }
 
@@ -345,7 +374,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                                     ],
                                   ),
                                   child: ElevatedButton(
-                                    onPressed: _addBook,
+                                    onPressed: _isSubmitting ? null : _addBook,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF6366F1),
                                       foregroundColor: Colors.white,
@@ -355,20 +384,42 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                                       ),
                                       elevation: 0,
                                     ),
-                                    child: const Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.add_rounded, size: 24),
-                                        SizedBox(width: 12),
-                                        Text(
-                                          'Add to Library',
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
+                                    child: _isSubmitting
+                                        ? const Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: CircularProgressIndicator(
+                                                  color: Colors.white,
+                                                  strokeWidth: 2,
+                                                ),
+                                              ),
+                                              SizedBox(width: 12),
+                                              Text(
+                                                'Adding...',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : const Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Icon(Icons.add_rounded, size: 24),
+                                              SizedBox(width: 12),
+                                              Text(
+                                                'Add to Library',
+                                                style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ),
-                                      ],
-                                    ),
                                   ),
                                 ),
                               ],
