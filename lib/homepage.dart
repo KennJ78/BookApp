@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Book added successfully!'),
-            backgroundColor: const Color(0xFF667EEA),
+            backgroundColor: const Color(0xFF1A1A1A),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -174,9 +174,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF667EEA),
-              Color(0xFF764BA2),
-              Color(0xFFF093FB),
+              Color(0xFF000000),
+              Color(0xFF1A1A1A),
+              Color(0xFF2D2D2D),
             ],
             stops: [0.0, 0.5, 1.0],
           ),
@@ -189,15 +189,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.black.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(25),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withOpacity(0.1),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.5),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -209,12 +209,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       padding: const EdgeInsets.all(15),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Colors.white, Color(0xFFF093FB)],
+                          colors: [Color(0xFF333333), Color(0xFF1A1A1A)],
                         ),
                         borderRadius: BorderRadius.circular(15),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withOpacity(0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -241,7 +241,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                 Shadow(
                                   offset: Offset(0, 2),
                                   blurRadius: 4,
-                                  color: Colors.black26,
+                                  color: Colors.black54,
                                 ),
                               ],
                             ),
@@ -250,7 +250,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                             'Discover and manage your favorite books',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.white,
+                              color: Colors.white70,
                               fontWeight: FontWeight.w300,
                             ),
                           ),
@@ -269,14 +269,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     position: _slideAnimation,
                     child: Container(
                       decoration: const BoxDecoration(
-                        color: Colors.white,
+                        color: Color(0xFF1A1A1A),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(35),
                           topRight: Radius.circular(35),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black12,
+                            color: Colors.black26,
                             blurRadius: 20,
                             offset: Offset(0, -5),
                           ),
@@ -285,7 +285,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       child: isLoading
                           ? const Center(
                               child: CircularProgressIndicator(
-                                color: Color(0xFF667EEA),
+                                color: Colors.white,
                               ),
                             )
                           : books.isEmpty
@@ -304,7 +304,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF667EEA).withOpacity(0.4),
+              color: Colors.black.withOpacity(0.5),
               blurRadius: 25,
               offset: const Offset(0, 15),
             ),
@@ -331,7 +331,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               await addBook(result);
             }
           },
-          backgroundColor: const Color(0xFF667EEA),
+          backgroundColor: const Color(0xFF333333),
           foregroundColor: Colors.white,
           icon: const Icon(Icons.add, size: 28),
           label: const Text(
@@ -355,12 +355,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             padding: const EdgeInsets.all(30),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                colors: [Color(0xFF333333), Color(0xFF1A1A1A)],
               ),
               borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF667EEA).withOpacity(0.3),
+                  color: Colors.black.withOpacity(0.5),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -378,7 +378,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             style: TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2D3748),
+              color: Colors.white,
             ),
           ),
           const SizedBox(height: 12),
@@ -387,7 +387,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
-              color: Color(0xFF718096),
+              color: Colors.white70,
               height: 1.5,
             ),
           ),
@@ -408,7 +408,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(width: 12),
@@ -416,12 +416,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                    colors: [Color(0xFF333333), Color(0xFF1A1A1A)],
                   ),
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF667EEA).withOpacity(0.3),
+                      color: Colors.black.withOpacity(0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
@@ -467,8 +467,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white,
-              const Color(0xFF667EEA).withOpacity(0.05),
+              const Color(0xFF2D2D2D),
+              const Color(0xFF1A1A1A),
             ],
           ),
         ),
@@ -483,12 +483,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                        padding: const EdgeInsets.all(15),
                        decoration: BoxDecoration(
                          gradient: const LinearGradient(
-                           colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                           colors: [Color(0xFF333333), Color(0xFF1A1A1A)],
                          ),
                          borderRadius: BorderRadius.circular(15),
                          boxShadow: [
                            BoxShadow(
-                             color: const Color(0xFF667EEA).withOpacity(0.3),
+                             color: Colors.black.withOpacity(0.3),
                              blurRadius: 10,
                              offset: const Offset(0, 5),
                            ),
@@ -510,7 +510,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                            borderRadius: BorderRadius.circular(10),
                            boxShadow: [
                              BoxShadow(
-                               color: Colors.black.withOpacity(0.1),
+                               color: Colors.black.withOpacity(0.3),
                                blurRadius: 4,
                                offset: const Offset(0, 2),
                              ),
@@ -521,7 +521,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                            style: const TextStyle(
                              fontSize: 10,
                              fontWeight: FontWeight.bold,
-                             color: Color(0xFF667EEA),
+                             color: Color(0xFF333333),
                            ),
                          ),
                        ),
@@ -538,7 +538,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2D3748),
+                          color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -546,7 +546,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                          'by ${book.author}',
                          style: const TextStyle(
                            fontSize: 15,
-                           color: Color(0xFF667EEA),
+                           color: Colors.white70,
                            fontWeight: FontWeight.w600,
                          ),
                        ),
@@ -554,17 +554,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                        Container(
                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                          decoration: BoxDecoration(
-                           color: const Color(0xFF667EEA).withOpacity(0.1),
+                           color: Colors.white.withOpacity(0.1),
                            borderRadius: BorderRadius.circular(8),
                            border: Border.all(
-                             color: const Color(0xFF667EEA).withOpacity(0.3),
+                             color: Colors.white.withOpacity(0.2),
                            ),
                          ),
                          child: Text(
                            'Published: ${book.publishYear}',
                            style: const TextStyle(
                              fontSize: 12,
-                             color: Color(0xFF667EEA),
+                             color: Colors.white70,
                              fontWeight: FontWeight.w500,
                            ),
                          ),
@@ -596,17 +596,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF667EEA).withOpacity(0.05),
+                color: Colors.white.withOpacity(0.05),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: const Color(0xFF667EEA).withOpacity(0.1),
+                  color: Colors.white.withOpacity(0.1),
                 ),
               ),
               child: Text(
                 book.description,
                 style: const TextStyle(
                   fontSize: 15,
-                  color: Color(0xFF718096),
+                  color: Colors.white70,
                   height: 1.6,
                 ),
               ),
@@ -632,7 +632,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Colors.white, Color(0xFFF7FAFC)],
+                colors: [Color(0xFF2D2D2D), Color(0xFF1A1A1A)],
               ),
             ),
             child: Column(
@@ -656,7 +656,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2D3748),
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -664,7 +664,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   'Are you sure you want to delete "${book.title}"? This action cannot be undone.',
                   textAlign: TextAlign.center,
                   style: const TextStyle(
-                    color: Color(0xFF718096),
+                    color: Colors.white70,
                     height: 1.5,
                     fontSize: 16,
                   ),
@@ -680,12 +680,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          side: const BorderSide(color: Color(0xFF718096)),
+                          side: const BorderSide(color: Colors.white70),
                         ),
                         child: const Text(
                           'Cancel',
                           style: TextStyle(
-                            color: Color(0xFF718096),
+                            color: Colors.white70,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
