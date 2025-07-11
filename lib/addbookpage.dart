@@ -39,7 +39,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
     ));
     
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.2),
+      begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _animationController,
@@ -70,8 +70,11 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please enter a valid publish year'),
-          backgroundColor: Colors.red,
+          backgroundColor: const Color(0xFFEF4444),
           behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       );
       return;
@@ -79,7 +82,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.195.238:3000/api/books'),
+        Uri.parse('http://192.168.195.238:3001/api/books'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'title': _titleController.text,
@@ -94,12 +97,11 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Book added successfully!'),
-            backgroundColor: const Color(0xFF1A1A1A),
+            backgroundColor: const Color(0xFF10B981),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
             ),
-            margin: const EdgeInsets.all(16),
           ),
         );
         Navigator.pop(context, newBook);
@@ -107,8 +109,11 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: ${response.body}'),
-            backgroundColor: Colors.red,
+            backgroundColor: const Color(0xFFEF4444),
             behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
           ),
         );
       }
@@ -116,8 +121,11 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error adding book: $e'),
-          backgroundColor: Colors.red,
+          backgroundColor: const Color(0xFFEF4444),
           behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
       );
     }
@@ -126,259 +134,255 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF000000),
-              Color(0xFF1A1A1A),
-              Color(0xFF2D2D2D),
-            ],
-            stops: [0.0, 0.5, 1.0],
+      backgroundColor: const Color(0xFF0F0F23),
+      body: Stack(
+        children: [
+          // Background Pattern
+          Positioned.fill(
+            child: CustomPaint(
+              painter: BackgroundPainter(),
+            ),
           ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              // Enhanced App Bar with Glassmorphism
-              Container(
-                margin: const EdgeInsets.all(20),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(
-                    color: Colors.white.withOpacity(0.1),
-                    width: 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 24,
+          
+          // Main Content
+          SafeArea(
+            child: Column(
+              children: [
+                // Hero Header
+                Container(
+                  margin: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+                  child: Row(
+                    children: [
+                      // Back Button
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF6366F1).withOpacity(0.3),
+                                blurRadius: 15,
+                                offset: const Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 24,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 20),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Add New Book',
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  offset: Offset(0, 2),
-                                  blurRadius: 4,
-                                  color: Colors.black54,
+                      const SizedBox(width: 20),
+                      
+                      // Header Text
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Add New Book',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white,
+                                letterSpacing: -1.0,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            const Text(
+                              'Expand your digital library',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Color(0xFF8B8BB8),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 32),
+                
+                // Form Content
+                Expanded(
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1E3F),
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.3),
+                              blurRadius: 30,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(32),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Header Icon
+                                Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF6366F1).withOpacity(0.3),
+                                        blurRadius: 25,
+                                        offset: const Offset(0, 8),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.library_add_rounded,
+                                    size: 50,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                
+                                // Title Field
+                                _buildTextField(
+                                  controller: _titleController,
+                                  label: 'Book Title',
+                                  icon: Icons.title_rounded,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a book title';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 24),
+                                
+                                // Author Field
+                                _buildTextField(
+                                  controller: _authorController,
+                                  label: 'Author',
+                                  icon: Icons.person_rounded,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter an author';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 24),
+                                
+                                // Publish Year Field
+                                _buildTextField(
+                                  controller: _publishYearController,
+                                  label: 'Publish Year',
+                                  icon: Icons.calendar_today_rounded,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a publish year';
+                                    }
+                                    final year = int.tryParse(value);
+                                    if (year == null) {
+                                      return 'Please enter a valid year';
+                                    }
+                                    if (year < 1000 || year > DateTime.now().year + 1) {
+                                      return 'Please enter a valid year between 1000 and ${DateTime.now().year + 1}';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 24),
+                                
+                                // Description Field
+                                _buildTextField(
+                                  controller: _descriptionController,
+                                  label: 'Description',
+                                  icon: Icons.description_rounded,
+                                  maxLines: 4,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter a description';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 40),
+                                
+                                // Add Button
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF6366F1).withOpacity(0.4),
+                                        blurRadius: 25,
+                                        offset: const Offset(0, 10),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ElevatedButton(
+                                    onPressed: _addBook,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF6366F1),
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(vertical: 20),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      elevation: 0,
+                                    ),
+                                    child: const Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.add_rounded, size: 24),
+                                        SizedBox(width: 12),
+                                        Text(
+                                          'Add to Library',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          Text(
-                            'Share your favorite book with the world',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white70,
-                              fontWeight: FontWeight.w300,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Form Content with Animation
-              Expanded(
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: SlideTransition(
-                    position: _slideAnimation,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF1A1A1A),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(35),
-                          topRight: Radius.circular(35),
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 20,
-                            offset: Offset(0, -5),
-                          ),
-                        ],
-                      ),
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(30),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Enhanced Header Icon
-                              Container(
-                                padding: const EdgeInsets.all(25),
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [Color(0xFF333333), Color(0xFF1A1A1A)],
-                                  ),
-                                  borderRadius: BorderRadius.circular(25),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.5),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                ),
-                                child: const Icon(
-                                  Icons.library_add,
-                                  size: 70,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 40),
-                              
-                              // Title Field
-                              _buildTextField(
-                                controller: _titleController,
-                                label: 'Book Title',
-                                icon: Icons.title,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a book title';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 24),
-                              
-                                                         // Author Field
-                           _buildTextField(
-                             controller: _authorController,
-                             label: 'Author',
-                             icon: Icons.person,
-                             validator: (value) {
-                               if (value == null || value.isEmpty) {
-                                 return 'Please enter an author';
-                               }
-                               return null;
-                             },
-                           ),
-                           const SizedBox(height: 24),
-                           
-                           // Publish Year Field
-                           _buildTextField(
-                             controller: _publishYearController,
-                             label: 'Publish Year',
-                             icon: Icons.calendar_today,
-                             validator: (value) {
-                               if (value == null || value.isEmpty) {
-                                 return 'Please enter a publish year';
-                               }
-                               final year = int.tryParse(value);
-                               if (year == null) {
-                                 return 'Please enter a valid year';
-                               }
-                               if (year < 1000 || year > DateTime.now().year + 1) {
-                                 return 'Please enter a valid year between 1000 and ${DateTime.now().year + 1}';
-                               }
-                               return null;
-                             },
-                           ),
-                           const SizedBox(height: 24),
-                           
-                           // Description Field
-                              _buildTextField(
-                                controller: _descriptionController,
-                                label: 'Description',
-                                icon: Icons.description,
-                                maxLines: 4,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter a description';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 40),
-                              
-                              // Enhanced Add Button
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.5),
-                                      blurRadius: 25,
-                                      offset: const Offset(0, 15),
-                                    ),
-                                  ],
-                                ),
-                                child: ElevatedButton(
-                                  onPressed: _addBook,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF333333),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 20),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    elevation: 0,
-                                  ),
-                                  child: const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.add, size: 28),
-                                      SizedBox(width: 12),
-                                      Text(
-                                        'Add to Collection',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -392,14 +396,19 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
   }) {
     return Container(
       decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF2A2A4F),
+            const Color(0xFF1E1E3F),
+          ],
+        ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        border: Border.all(
+          color: const Color(0xFF6366F1).withOpacity(0.2),
+          width: 1,
+        ),
       ),
       child: TextFormField(
         controller: controller,
@@ -407,24 +416,15 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
         decoration: InputDecoration(
           labelText: label,
           prefixIcon: Container(
-            margin: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(12),
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF333333), Color(0xFF1A1A1A)],
-              ),
+              color: const Color(0xFF6366F1).withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
             ),
             child: Icon(
               icon,
-              color: Colors.white,
+              color: const Color(0xFF6366F1),
               size: 22,
             ),
           ),
@@ -434,26 +434,24 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
-            borderSide: BorderSide(
-              color: Colors.white.withOpacity(0.1),
-            ),
+            borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: const BorderSide(
-              color: Colors.white,
-              width: 2,
+              color: Color(0xFF6366F1),
+              width: 3,
             ),
           ),
           filled: true,
-          fillColor: const Color(0xFF2D2D2D),
+          fillColor: Colors.transparent,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
-            vertical: 18,
+            vertical: 20,
           ),
           labelStyle: const TextStyle(
-            color: Colors.white70,
-            fontWeight: FontWeight.w500,
+            color: Color(0xFF8B8BB8),
+            fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
@@ -465,4 +463,30 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
       ),
     );
   }
+}
+
+// Custom Background Painter
+class BackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = const Color(0xFF6366F1).withOpacity(0.1)
+      ..style = PaintingStyle.fill;
+
+    // Draw some subtle background elements
+    canvas.drawCircle(
+      Offset(size.width * 0.2, size.height * 0.3),
+      80,
+      paint,
+    );
+    
+    canvas.drawCircle(
+      Offset(size.width * 0.8, size.height * 0.7),
+      60,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 } 
