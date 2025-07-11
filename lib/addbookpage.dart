@@ -94,7 +94,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Book added successfully!'),
-            backgroundColor: const Color(0xFF667EEA),
+            backgroundColor: const Color(0xFF1A1A1A),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
@@ -132,9 +132,9 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF667EEA),
-              Color(0xFF764BA2),
-              Color(0xFFF093FB),
+              Color(0xFF000000),
+              Color(0xFF1A1A1A),
+              Color(0xFF2D2D2D),
             ],
             stops: [0.0, 0.5, 1.0],
           ),
@@ -147,15 +147,15 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                 margin: const EdgeInsets.all(20),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.black.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(25),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withOpacity(0.1),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.5),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -168,7 +168,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                       child: Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
@@ -193,7 +193,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                                 Shadow(
                                   offset: Offset(0, 2),
                                   blurRadius: 4,
-                                  color: Colors.black26,
+                                  color: Colors.black54,
                                 ),
                               ],
                             ),
@@ -202,7 +202,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                             'Share your favorite book with the world',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.white,
+                              color: Colors.white70,
                               fontWeight: FontWeight.w300,
                             ),
                           ),
@@ -221,14 +221,14 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                     position: _slideAnimation,
                     child: Container(
                       decoration: const BoxDecoration(
-                        color: Colors.white,
+                        color: Color(0xFF1A1A1A),
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(35),
                           topRight: Radius.circular(35),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black12,
+                            color: Colors.black26,
                             blurRadius: 20,
                             offset: Offset(0, -5),
                           ),
@@ -246,12 +246,12 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                                 padding: const EdgeInsets.all(25),
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
-                                    colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                                    colors: [Color(0xFF333333), Color(0xFF1A1A1A)],
                                   ),
                                   borderRadius: BorderRadius.circular(25),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF667EEA).withOpacity(0.3),
+                                      color: Colors.black.withOpacity(0.5),
                                       blurRadius: 20,
                                       offset: const Offset(0, 10),
                                     ),
@@ -335,7 +335,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF667EEA).withOpacity(0.4),
+                                      color: Colors.black.withOpacity(0.5),
                                       blurRadius: 25,
                                       offset: const Offset(0, 15),
                                     ),
@@ -344,7 +344,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
                                 child: ElevatedButton(
                                   onPressed: _addBook,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF667EEA),
+                                    backgroundColor: const Color(0xFF333333),
                                     foregroundColor: Colors.white,
                                     padding: const EdgeInsets.symmetric(vertical: 20),
                                     shape: RoundedRectangleBorder(
@@ -395,7 +395,7 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -411,12 +411,12 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF667EEA), Color(0xFF764BA2)],
+                colors: [Color(0xFF333333), Color(0xFF1A1A1A)],
               ),
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF667EEA).withOpacity(0.3),
+                  color: Colors.black.withOpacity(0.3),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -435,31 +435,31 @@ class _AddBookPageState extends State<AddBookPage> with TickerProviderStateMixin
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: BorderSide(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.white.withOpacity(0.1),
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
             borderSide: const BorderSide(
-              color: Color(0xFF667EEA),
+              color: Colors.white,
               width: 2,
             ),
           ),
           filled: true,
-          fillColor: Colors.grey.withOpacity(0.05),
+          fillColor: const Color(0xFF2D2D2D),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 20,
             vertical: 18,
           ),
           labelStyle: const TextStyle(
-            color: Color(0xFF718096),
+            color: Colors.white70,
             fontWeight: FontWeight.w500,
             fontSize: 16,
           ),
         ),
         style: const TextStyle(
           fontSize: 16,
-          color: Color(0xFF2D3748),
+          color: Colors.white,
         ),
         validator: validator,
       ),
