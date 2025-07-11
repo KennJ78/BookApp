@@ -38,7 +38,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   List<Book> books = [];
+  List<Book> filteredBooks = [];
   bool isLoading = true;
+  bool isSearching = false;
+  final TextEditingController _searchController = TextEditingController();
 
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -70,17 +73,38 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     
     _animationController.forward();
     fetchBooks();
+    
+    // Add listener to search controller
+    _searchController.addListener(_filterBooks);
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _searchController.dispose();
     super.dispose();
+  }
+
+  void _filterBooks() {
+    final query = _searchController.text.toLowerCase().trim();
+    setState(() {
+      isSearching = query.isNotEmpty;
+      if (query.isEmpty) {
+        filteredBooks = List.from(books);
+      } else {
+        filteredBooks = books.where((book) {
+          return book.title.toLowerCase().contains(query) ||
+                 book.author.toLowerCase().contains(query) ||
+                 book.description.toLowerCase().contains(query) ||
+                 book.publishYear.toString().contains(query);
+        }).toList();
+      }
+    });
   }
 
   Future<void> fetchBooks() async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.195.238:3001/api/books'));
+      final response = await http.get(Uri.parse('http://192.168.195.238:3002/api/books'));
       if (response.statusCode == 200) {
         final List<dynamic> booksJson = json.decode(response.body);
         final List<Book> fetchedBooks = booksJson.map((json) => Book.fromJson(json)).toList();
@@ -93,6 +117,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         
         setState(() {
           books = uniqueBooks.values.toList();
+          filteredBooks = List.from(books); // Initialize filteredBooks with all books
           isLoading = false;
         });
       }
@@ -116,7 +141,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> addBook(Book book) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.195.238:3001/api/books'),
+        Uri.parse('http://192.168.195.238:3002/api/books'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'title': book.title,
@@ -133,6 +158,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           bool bookExists = books.any((existingBook) => existingBook.id == newBook.id);
           if (!bookExists) {
             books.add(newBook);
+            // Update filtered books if not currently searching or if the new book matches the search
+            if (!isSearching || _searchController.text.isEmpty) {
+              filteredBooks.add(newBook);
+            } else {
+              _filterBooks(); // Re-filter to include the new book if it matches
+            }
           }
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -187,10 +218,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> deleteBook(String id) async {
     try {
-      final response = await http.delete(Uri.parse('http://192.168.195.238:3001/api/books/$id'));
+      final response = await http.delete(Uri.parse('http://192.168.195.238:3002/api/books/$id'));
       if (response.statusCode == 200) {
         setState(() {
           books.removeWhere((book) => book.id == id);
+          filteredBooks.removeWhere((book) => book.id == id); // Also remove from filtered list
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -312,7 +344,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           ),
                         ),
                         child: Text(
-                          '${books.length}',
+                          '${filteredBooks.length}',
                           style: const TextStyle(
                             color: Color(0xFF6366F1),
                             fontWeight: FontWeight.w700,
@@ -325,6 +357,71 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
                 
                 const SizedBox(height: 32),
+                
+                // Search Bar
+                Container(
+                  margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: TextField(
+                    controller: _searchController,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Search books by title, author, or description...',
+                      hintStyle: const TextStyle(
+                        color: Color(0xFF8B8BB8),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      prefixIcon: Icon(
+                        isSearching ? Icons.search : Icons.search_outlined,
+                        color: isSearching ? const Color(0xFF6366F1) : const Color(0xFF8B8BB8),
+                        size: 24,
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              onPressed: () {
+                                _searchController.clear();
+                                _filterBooks();
+                              },
+                              icon: const Icon(
+                                Icons.clear_rounded,
+                                color: Color(0xFF8B8BB8),
+                                size: 24,
+                              ),
+                            )
+                          : null,
+                      filled: true,
+                      fillColor: const Color(0xFF1E1E3F),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide(
+                          color: isSearching 
+                              ? const Color(0xFF6366F1).withOpacity(0.5)
+                              : const Color(0xFF6366F1).withOpacity(0.2),
+                          width: 2,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF6366F1),
+                          width: 3,
+                        ),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 20,
+                      ),
+                    ),
+                  ),
+                ),
                 
                 // Content Area
               Expanded(
@@ -351,7 +448,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   color: Color(0xFF6366F1),
                               ),
                             )
-                          : books.isEmpty
+                          : filteredBooks.isEmpty
                               ? _buildEmptyState()
                               : _buildBookList(),
                     ),
@@ -397,6 +494,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 bool bookExists = books.any((existingBook) => existingBook.id == result.id);
                 if (!bookExists) {
                   books.add(result);
+                  // Update filtered books if not currently searching or if the new book matches the search
+                  if (!isSearching || _searchController.text.isEmpty) {
+                    filteredBooks.add(result);
+                  } else {
+                    _filterBooks(); // Re-filter to include the new book if it matches
+                  }
                 }
               });
             }
@@ -420,57 +523,79 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(48),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
             // Animated Icon
-          Container(
+            Container(
               width: 120,
               height: 120,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
                   colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-              ),
+                ),
                 borderRadius: BorderRadius.circular(40),
-              boxShadow: [
-                BoxShadow(
+                boxShadow: [
+                  BoxShadow(
                     color: const Color(0xFF6366F1).withOpacity(0.3),
                     blurRadius: 30,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: const Icon(
-                Icons.auto_stories_rounded,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: Icon(
+                isSearching ? Icons.search_off_rounded : Icons.auto_stories_rounded,
                 size: 60,
-              color: Colors.white,
+                color: Colors.white,
+              ),
             ),
-          ),
             const SizedBox(height: 32),
             
-          const Text(
-              'Start Your Collection',
-            style: TextStyle(
-              fontSize: 28,
+            Text(
+              isSearching ? 'No Books Found' : 'Start Your Collection',
+              style: const TextStyle(
+                fontSize: 28,
                 fontWeight: FontWeight.w800,
-              color: Colors.white,
+                color: Colors.white,
                 letterSpacing: -1.0,
               ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-              'Add your first book to begin building your digital library',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isSearching 
+                ? 'Try adjusting your search terms or browse all your books'
+                : 'Add your first book to begin building your digital library',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
                 color: Color(0xFF8B8BB8),
                 height: 1.6,
               ),
             ),
+            if (isSearching) ...[
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  _searchController.clear();
+                  _filterBooks();
+                },
+                icon: const Icon(Icons.clear_rounded, size: 20),
+                label: const Text('Clear Search'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF6366F1).withOpacity(0.2),
+                  foregroundColor: const Color(0xFF6366F1),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+              ),
+            ],
           ],
-          ),
+        ),
       ),
     );
   }
@@ -496,15 +621,33 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Your Books',
-                style: TextStyle(
+              Text(
+                isSearching ? 'Search Results' : 'Your Books',
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                   letterSpacing: -0.8,
                 ),
               ),
+              if (isSearching) ...[
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6366F1).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${filteredBooks.length} found',
+                    style: const TextStyle(
+                      color: Color(0xFF6366F1),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -560,9 +703,9 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                   crossAxisSpacing: crossAxisSpacing,
                   mainAxisSpacing: mainAxisSpacing,
                 ),
-                itemCount: books.length,
+                itemCount: filteredBooks.length,
                 itemBuilder: (context, index) {
-                  final book = books[index];
+                  final book = filteredBooks[index];
                   return _buildBookCard(book, index, screenWidth, cardWidth, cardHeight);
                 },
               );
