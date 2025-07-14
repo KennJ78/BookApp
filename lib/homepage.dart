@@ -9,6 +9,7 @@ class Book {
   final String author;
   final int publishYear;
   final String description;
+  final String? image;
 
   Book({
     required this.id,
@@ -16,6 +17,7 @@ class Book {
     required this.author,
     required this.publishYear,
     required this.description,
+    this.image,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -25,6 +27,7 @@ class Book {
       author: json['author'],
       publishYear: json['publishYear'] ?? 0,
       description: json['description'],
+      image: json['image'],
     );
   }
 }
@@ -104,7 +107,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> fetchBooks() async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.195.238:3002/api/books'));
+      final response = await http.get(Uri.parse('http://192.168.195.238:3003/api/books'));
       if (response.statusCode == 200) {
         final List<dynamic> booksJson = json.decode(response.body);
         final List<Book> fetchedBooks = booksJson.map((json) => Book.fromJson(json)).toList();
@@ -141,7 +144,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Future<void> addBook(Book book) async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.195.238:3002/api/books'),
+        Uri.parse('http://192.168.195.238:3003/api/books'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'title': book.title,
@@ -218,7 +221,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Future<void> deleteBook(String id) async {
     try {
-      final response = await http.delete(Uri.parse('http://192.168.195.238:3002/api/books/$id'));
+      final response = await http.delete(Uri.parse('http://192.168.195.238:3003/api/books/$id'));
       if (response.statusCode == 200) {
         setState(() {
           books.removeWhere((book) => book.id == id);
@@ -668,29 +671,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               if (screenWidth > 1200) {
                 // Large laptop/desktop
                 crossAxisCount = 4;
-                cardWidth = 280;
-                cardHeight = 320;
+                cardWidth = 300;
+                cardHeight = 420;
                 crossAxisSpacing = 20;
                 mainAxisSpacing = 20;
               } else if (screenWidth > 800) {
                 // Medium laptop/tablet
                 crossAxisCount = 3;
-                cardWidth = 240;
-                cardHeight = 280;
+                cardWidth = 260;
+                cardHeight = 380;
                 crossAxisSpacing = 18;
                 mainAxisSpacing = 18;
               } else if (screenWidth > 600) {
                 // Small laptop/tablet
                 crossAxisCount = 2;
-                cardWidth = 200;
-                cardHeight = 260;
+                cardWidth = 220;
+                cardHeight = 360;
                 crossAxisSpacing = 16;
                 mainAxisSpacing = 16;
               } else {
                 // Mobile
                 crossAxisCount = 2;
-                cardWidth = 160;
-                cardHeight = 240;
+                cardWidth = 180;
+                cardHeight = 320;
                 crossAxisSpacing = 16;
                 mainAxisSpacing = 16;
               }
@@ -718,13 +721,13 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
 
   Widget _buildBookCard(Book book, int index, double screenWidth, double cardWidth, double cardHeight) {
     // Adjust card styling based on screen size
-    double padding = screenWidth > 800 ? 12.0 : 16.0;
+    double padding = screenWidth > 800 ? 14.0 : 16.0; // Increased padding for much larger fonts
     double iconSize = screenWidth > 800 ? 16.0 : 20.0;
-    double titleFontSize = screenWidth > 800 ? 14.0 : 16.0;
-    double authorFontSize = screenWidth > 800 ? 12.0 : 14.0;
-    double yearFontSize = screenWidth > 800 ? 10.0 : 12.0;
+    double titleFontSize = screenWidth > 800 ? 18.0 : 16.0; // Much larger font for laptops
+    double authorFontSize = screenWidth > 800 ? 16.0 : 14.0; // Much larger font for laptops
+    double yearFontSize = screenWidth > 800 ? 14.0 : 12.0; // Much larger font for laptops
     double deleteIconSize = screenWidth > 800 ? 14.0 : 18.0;
-    double descriptionFontSize = screenWidth > 800 ? 13.0 : 13.0;
+    double descriptionFontSize = screenWidth > 800 ? 15.0 : 13.0; // Much larger font for laptops
     
     return GestureDetector(
       onTap: () => _showBookDetails(book),
@@ -752,134 +755,180 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Book Icon and Year - Fixed height
-              SizedBox(
-                height: screenWidth > 800 ? 32 : 36,
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(screenWidth > 800 ? 6 : 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(screenWidth > 800 ? 8 : 12),
+              // Book Cover Image - Large and prominent
+              if (book.image != null) ...[
+                Container(
+                  width: double.infinity,
+                  height: screenWidth > 800 ? 180 : 140, // Increased height for laptops
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(screenWidth > 800 ? 12 : 16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
-                      child: Icon(
-                        Icons.auto_stories_rounded,
-                        color: const Color(0xFF6366F1),
-                        size: iconSize,
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(screenWidth > 800 ? 12 : 16),
+                    child: Image.memory(
+                      base64Decode(book.image!),
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: const Color(0xFF2A2A4F),
+                          child: const Center(
+                            child: Icon(
+                              Icons.broken_image_rounded,
+                              color: Color(0xFF8B8BB8),
+                              size: 32,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ] else ...[
+                // Placeholder for books without images
+                Container(
+                  width: double.infinity,
+                  height: screenWidth > 800 ? 140 : 100, // Increased height for laptops
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(screenWidth > 800 ? 12 : 16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6366F1).withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.auto_stories_rounded,
+                      color: Colors.white,
+                      size: screenWidth > 800 ? 48 : 40, // Larger icon for laptops
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              
+              // Book Info Section
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title and Year Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            book.title,
+                            style: TextStyle(
+                              fontSize: titleFontSize,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                              height: screenWidth > 800 ? 1.4 : 1.2, // Increased line height for larger fonts
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth > 800 ? 6 : 8, // Increased padding for larger font
+                            vertical: screenWidth > 800 ? 4 : 4, // Increased padding for larger font
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6366F1),
+                            borderRadius: BorderRadius.circular(screenWidth > 800 ? 6 : 8), // Increased radius for larger font
+                          ),
+                          child: Text(
+                            '${book.publishYear}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: yearFontSize,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    SizedBox(height: screenWidth > 800 ? 6 : 6), // Increased spacing for larger fonts
+                    
+                    // Author
+                    Text(
+                      'by ${book.author}',
+                      style: TextStyle(
+                        fontSize: authorFontSize,
+                        color: const Color(0xFF8B8BB8),
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    
+                    SizedBox(height: screenWidth > 800 ? 8 : 8), // Increased spacing for larger fonts
+                    
+                    // Description
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(screenWidth > 800 ? 8 : 8), // Increased padding for larger fonts
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1E3F).withOpacity(0.5),
+                          borderRadius: BorderRadius.circular(screenWidth > 800 ? 8 : 8), // Increased radius for larger fonts
+                          border: Border.all(
+                            color: const Color(0xFF6366F1).withOpacity(0.1),
+                            width: 1,
+                          ),
+                        ),
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          child: Text(
+                            book.description,
+                            style: TextStyle(
+                              fontSize: descriptionFontSize,
+                              color: const Color(0xFFB8B8D1),
+                              height: screenWidth > 800 ? 1.5 : 1.2, // Increased line height for larger fonts
+                            ),
+                          ),
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth > 800 ? 6 : 8,
-                        vertical: screenWidth > 800 ? 3 : 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6366F1),
-                        borderRadius: BorderRadius.circular(screenWidth > 800 ? 6 : 8),
-                      ),
-                      child: Text(
-                        '${book.publishYear}',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: yearFontSize,
-                          fontWeight: FontWeight.w600,
+                    
+                    SizedBox(height: screenWidth > 800 ? 4 : 8), // Reduced spacing for laptops
+                    
+                    // Delete Button
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        onTap: () => _showDeleteDialog(book),
+                        child: Container(
+                          padding: EdgeInsets.all(screenWidth > 800 ? 6 : 8),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEF4444).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(screenWidth > 800 ? 8 : 10),
+                          ),
+                          child: Icon(
+                            Icons.delete_outline_rounded,
+                            color: const Color(0xFFEF4444),
+                            size: deleteIconSize,
+                          ),
                         ),
                       ),
                     ),
                   ],
-                ),
-              ),
-              
-              SizedBox(height: screenWidth > 800 ? 8 : 12),
-              
-              // Book Title - Fixed height
-              SizedBox(
-                height: screenWidth > 800 ? 36 : 40,
-                width: double.infinity,
-                child: Text(
-                  book.title,
-                  style: TextStyle(
-                    fontSize: titleFontSize,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    height: 1.3,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              
-              SizedBox(height: screenWidth > 800 ? 4 : 6),
-              
-              // Author - Fixed height
-              SizedBox(
-                height: screenWidth > 800 ? 18 : 20,
-                width: double.infinity,
-                child: Text(
-                  'by ${book.author}',
-                  style: TextStyle(
-                    fontSize: authorFontSize,
-                    color: const Color(0xFF8B8BB8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              
-              SizedBox(height: screenWidth > 800 ? 6 : 8),
-              
-              // Description - Flexible height
-              Expanded(
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(screenWidth > 800 ? 6 : 8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E1E3F).withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(screenWidth > 800 ? 6 : 8),
-                    border: Border.all(
-                      color: const Color(0xFF6366F1).withOpacity(0.1),
-                      width: 1,
-                    ),
-                  ),
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Text(
-                      book.description,
-                      style: TextStyle(
-                        fontSize: descriptionFontSize,
-                        color: const Color(0xFFB8B8D1),
-                        height: 1.3,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              
-              SizedBox(height: screenWidth > 800 ? 6 : 8),
-              
-              // Delete Button - Fixed height
-              SizedBox(
-                height: screenWidth > 800 ? 28 : 32,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: GestureDetector(
-                    onTap: () => _showDeleteDialog(book),
-                    child: Container(
-                      padding: EdgeInsets.all(screenWidth > 800 ? 6 : 8),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444).withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(screenWidth > 800 ? 8 : 10),
-                      ),
-                      child: Icon(
-                        Icons.delete_outline_rounded,
-                        color: const Color(0xFFEF4444),
-                        size: deleteIconSize,
-                      ),
-                    ),
-                  ),
                 ),
               ),
             ],
@@ -924,19 +973,36 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               // Book Info
               Row(
                 children: [
+                  // Book Cover or Icon
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    width: 80,
+                    height: 80,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
                       ),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Icon(
-                      Icons.auto_stories_rounded,
-                      color: Colors.white,
-                      size: 32,
-                    ),
+                    child: book.image != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.memory(
+                              base64Decode(book.image!),
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.auto_stories_rounded,
+                                  color: Colors.white,
+                                  size: 32,
+                                );
+                              },
+                            ),
+                          )
+                        : const Icon(
+                            Icons.auto_stories_rounded,
+                            color: Colors.white,
+                            size: 32,
+                          ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(

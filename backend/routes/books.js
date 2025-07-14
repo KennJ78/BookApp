@@ -36,9 +36,9 @@ router.get('/:id', async (req, res) => {
 // POST a new book
 router.post('/', async (req, res) => {
   try {
-    const { title, author, publishYear, description } = req.body;
+    const { title, author, publishYear, description, image } = req.body;
     
-    console.log('Received book creation request:', { title, author, publishYear, description });
+    console.log('Received book creation request:', { title, author, publishYear, description, hasImage: !!image });
     
     // Validation
     if (!title || !author || !publishYear || !description) {
@@ -66,7 +66,8 @@ router.post('/', async (req, res) => {
       title: title.trim(),
       author: author.trim(),
       publishYear: parseInt(publishYear),
-      description: description.trim()
+      description: description.trim(),
+      image: image || null
     });
 
     console.log('Creating new book:', newBook);

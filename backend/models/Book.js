@@ -25,6 +25,11 @@ const bookSchema = new mongoose.Schema({
     trim: true,
     maxlength: [500, 'Description cannot exceed 500 characters']
   },
+  image: {
+    type: String,
+    default: null,
+    // Removed file size limit to allow unlimited image sizes
+  },
   createdAt: {
     type: Date,
     default: Date.now
